@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+    <link rel="stylesheet" href="/static/styles/services_style.css">
+</head>
+<body>
+    <div class="header">
+        <a class="home-btn" href="/services">Домой</a>
+        <a class="ckd-btn" href="/order/1">
+            СКФ
+            <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+        </a>
+    </div>
+    <div class="content">
+        <!-- ЯВНО идет блок поиска, с отступом сверху -->
+        <form method="get" action="/services" class="search-block">
+            <input type="text" class="search-input" name="search" placeholder="Поиск..." value="{{ .search }}">
+            <button type="submit" class="search-btn">
+                <img src="/static/img/search.png" alt="Поиск">
+            </button>
+        </form>
+        <!-- Затем список карточек пациентов -->
+        <div class="patients-list">
+            {{ range .patients }}
+            <div class="patient-card{{if eq .ID 1}} selected{{end}}">
+                <img src="/static/img/{{ .Avatar }}" alt="Аватар" class="avatar">
+                <div class="fio">{{ .Name }}</div>
+                <div class="card-actions">
+                    <button class="choose-btn" disabled>Выбрать</button>
+                    <a href="/patient/{{ .ID }}" class="more-btn">Подробнее</a>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Пациент: {{ .patient.Name }}</title>
+    <link rel="stylesheet" href="/static/styles/patient_style.css">
+</head>
+<body>
+    <div class="header">
+        <a class="home-btn" href="/services">Домой</a>
+    </div>
+    <div class="content">
+        <div class="patient-detail-card">
+            <img src="/static/img/{{ .patient.Avatar }}" alt="Аватар" class="avatar-big">
+            <div class="info">
+                <div class="fio">{{ .patient.Name }}</div>
+                <div class="info-list">
+                    <div>Возраст: {{ .patient.Age }} лет</div>
+                    <div>Пол: {{ .patient.Gender }}</div>
+                    <div>min креатин: {{ .patient.MinCreatinine }}</div>
+                    <div>max креатин: {{ .patient.MaxCreatinine }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

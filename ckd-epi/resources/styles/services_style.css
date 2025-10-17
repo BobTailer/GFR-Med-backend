@@ -1,0 +1,149 @@
+body {
+    background: #fff;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 16px 32px 8px 32px;  /* тонкая шапка */
+    font-size: 26px;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+.home-btn {
+    color: #000;
+    text-decoration: none;
+    font-size: 22px;
+}
+.ckd-btn {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    color: #0076fe;
+    text-decoration: none;
+    font-weight: bold;
+    gap: 8px;
+}
+.ckd-icon {
+    width: 32px;
+    height: 32px;
+}
+.content {
+    background: #e6e6e6;
+    min-height: 100vh;
+    padding-top: 28px;
+    padding-bottom: 40px;
+}
+.search-block {
+    display: flex;
+    align-items: center;
+    margin: 0 auto; /* БОЛЬШОЙ явный отступ сверху */
+    width: 950px;
+    max-width: 92vw;
+
+    background: #ffe02e;
+    border-radius: 30px;
+    padding: 0 24px;
+    height: 64px;
+    box-sizing: border-box;
+}
+.search-input {
+    background: transparent;
+    border: none;
+    border-radius: 30px;
+    font-size: 30px;
+    padding: 17px 70px 17px 36px;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+    font-weight: 500;
+}
+.search-btn {
+    background: none;
+    border: none;
+    position: relative;
+    left: -55px;
+    cursor: pointer;
+}
+.search-btn img {
+    width: 38px;
+    height: 38px;
+}
+.patients-list {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 36px 38px;
+    justify-content: center;
+    padding: 0 32px;
+    max-width: 1340px;
+    margin: 36px auto 0 auto; /* карточки немного ниже поиска */
+}
+.patient-card {
+    background: #fff;
+    border-radius: 26px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    padding: 16px 12px 0 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 210px;
+    min-height: 260px;
+    border: 3px solid transparent;
+    transition: border 0.2s;
+    position: relative;
+    height: 320px;
+    justify-content: flex-start;
+}
+.patient-card.selected {
+    border: 3px solid #2196f3;
+}
+.avatar {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 12px;
+}
+.fio {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 16px;
+    margin-top: 6px;
+}
+.card-actions {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    position: absolute;
+    bottom: 15px;
+    left: 0;
+}
+.choose-btn, .more-btn {
+    background: #e6e6e6;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 13px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 500;
+    color: #222;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.18s;
+    min-width: 84px;
+    max-width: 120px;
+    box-sizing: border-box;
+}
+.choose-btn:disabled {
+    background: #e6e6e6;
+    color: #222;
+    cursor: default;
+}
+.more-btn:hover,
+.choose-btn:hover {
+    background: #ffe02e;
+    color: #222;
+}
