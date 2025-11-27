@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Категория: {{ .category.Name }}</title>
+    <link rel="stylesheet" href="/static/styles/patient_style.css">
+</head>
+<body>
+    <div class="header">
+        <a class="home-btn" href="/categories">Домой</a>
+        {{ if .hasDraftOrder }}
+            {{ if gt .categoriesCount 0 }}
+            <a class="ckd-btn" href="/order/{{ .draftOrderID }}">
+                СКФ
+                <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+                <span class="ckd-badge">{{ .categoriesCount }}</span>
+            </a>
+            {{ else }}
+            <span class="ckd-btn ckd-btn-empty">
+                СКФ
+                <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+            </span>
+            {{ end }}
+        {{ else }}
+        <span class="ckd-btn ckd-btn-disabled">
+            СКФ
+            <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+        </span>
+        {{ end }}
+    </div>
+    <div class="content">
+        <div class="patient-detail-card">
+            {{ if .imageURL }}
+            <img src="{{ .imageURL }}" alt="Аватар" class="avatar-big">
+            {{ else }}
+            <img src="/static/img/default.png" alt="Аватар" class="avatar-big">
+            {{ end }}
+            <div class="info">
+                <div class="fio">{{ .category.Name }}</div>
+                <div class="info-list">
+                    <div>Описание: {{ .category.Description }}</div>
+                    <div>Возраст: {{ .category.Age }} лет</div>
+                    <div>Пол: {{ .category.Gender }}</div>
+                    <div>Категория для расчета СКФ по формуле CKD-EPI</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

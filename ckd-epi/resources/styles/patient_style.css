@@ -1,0 +1,77 @@
+body {
+    background: #fff;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 16px 32px 8px 32px;
+    font-size: 26px;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+.home-btn {
+    color: #000;
+    text-decoration: none;
+    font-size: 22px;
+}
+.ckd-btn {
+    display: flex;
+    align-items: center;
+    font-size: 22px;
+    color: #0076fe;
+    text-decoration: none;
+    font-weight: bold;
+    gap: 8px;
+}
+.ckd-icon {
+    width: 32px;
+    height: 32px;
+}
+.content {
+    background: #e6e6e6;
+    min-height: calc(100vh - 60px);
+    padding: 36px 32px 40px 32px;
+}
+.patient-detail-card {
+    display: flex;
+    align-items: flex-start;
+    background: #fff;
+    margin: 0 auto;
+    padding: 36px;
+    border-radius: 26px;
+    max-width: 1000px;
+    gap: 36px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.avatar-big {
+    width: 250px;
+    height: 250px;
+    border-radius: 20px;
+    background: #fff;
+    display: block;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-top: 8px;
+}
+.fio {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 18px;
+}
+.info-list {
+    font-size: 22px;
+    color: #111;
+    line-height: 1.8;
+}
+.info-list div {
+    margin-bottom: 8px;
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заявка СКФ</title>
+    <link rel="stylesheet" href="/static/styles/order_style.css">
+    <link rel="stylesheet" href="/static/styles/services_style.css">
+</head>
+<body>
+    <div class="header">
+        <a class="home-btn" href="/categories">Домой</a>
+    </div>
+    <div class="content">
+        <div class="order-info">
+            <strong>Статус:</strong> {{ .order.Status }} | 
+            <strong>ID заказа:</strong> {{ .order.ID }} |
+            <strong>Дата создания:</strong> {{ .order.CreatedAt.Format "02.01.2006 15:04" }}
+        </div>
+
+        {{ if .categories }}
+        <div class="services-section">
+            <h3>Категории в заказе:</h3>
+            <div class="services-cards-list">
+                {{ range .categories }}
+                <div class="order-card service-card">
+                    {{ if .ImageURL }}
+                    <img src="{{ .ImageURL }}" alt="Аватар" class="avatar-order">
+                    {{ else }}
+                    <img src="/static/img/default.png" alt="Аватар" class="avatar-order">
+                    {{ end }}
+                    <div class="service-info">
+                        <span class="order-title service-name">{{ .Name }}</span>
+                        <span class="service-details">Возраст: {{ .Age }}, Пол: {{ .Gender }}</span>
+                    </div>
+                    <div class="order-result">
+                        <!-- Желтый блок оставлен пустым для будущего использования -->
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        </div>
+        {{ else }}
+        <div class="empty-order-message">
+            В заказе пока нет категорий. Добавьте категории со страницы <a href="/categories">категорий</a>.
+        </div>
+        {{ end }}
+
+        {{ if eq .order.Status "черновик" }}
+        <form method="post" action="/order/{{ .order.ID }}/delete" class="delete-order-form">
+            <button type="submit" class="delete-order-btn" onclick="return confirm('Вы уверены, что хотите удалить этот заказ?');">
+                Удалить заказ
+            </button>
+        </form>
+        {{ end }}
+    </div>
+</body>
+</html>

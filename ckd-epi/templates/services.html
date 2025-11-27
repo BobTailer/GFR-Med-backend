@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+    <link rel="stylesheet" href="/static/styles/services_style.css">
+</head>
+<body>
+    <div class="header">
+        <a class="home-btn" href="/categories">Домой</a>
+        {{ if .hasDraftOrder }}
+            {{ if gt .categoriesCount 0 }}
+            <a class="ckd-btn" href="/order/{{ .draftOrderID }}">
+                СКФ
+                <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+                <span class="ckd-badge">{{ .categoriesCount }}</span>
+            </a>
+            {{ else }}
+            <span class="ckd-btn ckd-btn-empty">
+                СКФ
+                <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+            </span>
+            {{ end }}
+        {{ else }}
+        <span class="ckd-btn ckd-btn-disabled">
+            СКФ
+            <img src="/static/img/ckd-epi.png" alt="СКФ" class="ckd-icon">
+        </span>
+        {{ end }}
+    </div>
+    <div class="content">
+        <!-- ЯВНО идет блок поиска, с отступом сверху -->
+        <form method="get" action="/categories" class="search-block">
+            <input type="text" class="search-input" name="search" placeholder="Поиск..." value="{{ .search }}">
+            <button type="submit" class="search-btn">
+                <img src="/static/img/search.png" alt="Поиск">
+            </button>
+        </form>
+        <!-- Затем список карточек категорий пациентов -->
+        <div class="patients-list">
+            {{ range .categories }}
+            <div class="patient-card">
+                <a href="/category/{{ .ID }}" class="avatar-link">
+                    {{ if .ImageURL }}
+                    <img src="{{ .ImageURL }}" alt="Аватар" class="avatar">
+                    {{ else }}
+                    <img src="/static/img/default.png" alt="Аватар" class="avatar">
+                    {{ end }}
+                </a>
+                <div class="fio">{{ .Name }}</div>
+                <div class="card-actions">
+                    <form method="post" action="/categories/{{ .ID }}/add" class="card-form-inline">
+                        <button type="submit" class="choose-btn">Добавить в заказ</button>
+                    </form>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</body>
+</html>
