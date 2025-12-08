@@ -6,14 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type OrderStatus string
+type CalculationStatus string
 
 const (
-	OrderStatusDraft     OrderStatus = "черновик"
-	OrderStatusDeleted   OrderStatus = "удалён"
-	OrderStatusFormed    OrderStatus = "сформирован"
-	OrderStatusCompleted OrderStatus = "завершён"
-	OrderStatusRejected  OrderStatus = "отклонён"
+	CalculationStatusDraft     CalculationStatus = "черновик"
+	CalculationStatusDeleted   CalculationStatus = "удалён"
+	CalculationStatusFormed    CalculationStatus = "сформирован"
+	CalculationStatusCompleted CalculationStatus = "завершён"
+	CalculationStatusRejected  CalculationStatus = "отклонён"
 )
 
 type PatientCategory struct {
@@ -34,38 +34,41 @@ func (PatientCategory) TableName() string {
 	return "patient_categories"
 }
 
-type GFROrder struct {
-	ID              uint        `gorm:"primaryKey"`
-	Status          OrderStatus `gorm:"type:varchar(20);not null;default:'черновик'"`
-	CreatedAt       time.Time   `gorm:"not null"`
-	CreatorID       uint        `gorm:"not null"`
+type GlomerularCalculation struct {
+	ID              uint               `gorm:"primaryKey"`
+	Status          CalculationStatus  `gorm:"type:varchar(20);not null;default:'черновик'"`
+	CreatedAt       time.Time          `gorm:"not null"`
+	CreatorID       uint               `gorm:"not null"`
+	DoctorName      *string            `gorm:"type:varchar(255);column:doctor_name"`
+	AverageAge      *float64           `gorm:"type:decimal(10,2);column:average_age"`
 	FormedAt        *time.Time
 	CompletedAt     *time.Time
 	ModeratorID     *uint
-	CalculatedGFR   *float64           `gorm:"type:decimal(10,2)"`
-	Categories      []PatientCategory  `gorm:"many2many:gfr_order_categories;"`
-	OrderCategories []GFROrderCategory `gorm:"foreignKey:OrderID;references:ID"`
+	CalculatedGFR   *float64                   `gorm:"type:decimal(10,2)"`
+	Categories      []PatientCategory           `gorm:"many2many:glomerular_calculation_categories;"`
+	CalculationCategories []GlomerularCalculationCategory `gorm:"foreignKey:CalculationID;references:ID"`
 	UpdatedAt       time.Time
 	DeletedAt       gorm.DeletedAt `gorm:"index"`
 }
 
-func (GFROrder) TableName() string {
-	return "gfr_orders"
+func (GlomerularCalculation) TableName() string {
+	return "glomerular_calculations"
 }
 
-type GFROrderCategory struct {
-	OrderID         uint      `gorm:"primaryKey;column:order_id"`
+type GlomerularCalculationCategory struct {
+	CalculationID   uint      `gorm:"primaryKey;column:calculation_id"`
 	CategoryID      uint      `gorm:"primaryKey;column:category_id"`
 	Quantity        *int      `gorm:"type:integer;column:quantity"`
 	OrderNum        *int      `gorm:"type:integer;column:order_num"`
 	IsMain          *bool     `gorm:"type:boolean;column:is_main"`
 	CreatinineLevel *float64  `gorm:"type:decimal(10,2);column:creatinine_level"`
+	CalculatedGFR   *float64  `gorm:"type:decimal(10,2);column:calculated_gfr"`
 	CreatedAt       time.Time `gorm:"column:created_at"`
 	UpdatedAt       time.Time `gorm:"column:updated_at"`
 }
 
-func (GFROrderCategory) TableName() string {
-	return "gfr_order_categories"
+func (GlomerularCalculationCategory) TableName() string {
+	return "glomerular_calculation_categories"
 }
 
 type User struct {

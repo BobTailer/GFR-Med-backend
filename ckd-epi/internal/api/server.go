@@ -43,13 +43,15 @@ func StartServer() {
 	r.Static("/static", "./resources")
 
 	r.GET("/", h.PatientCategoriesList)
-	r.GET("/categories", h.PatientCategoriesList)
-	r.GET("/category/:id", h.PatientCategoryDetail)
-	r.POST("/order/:id/delete", h.DeleteGFROrder)
-	r.POST("/categories/:id/add", h.CreateDraftGFROrderAndAddCategory)
-	r.GET("/order/:id", h.GFROrderDetail)
+	r.GET("/patient-categories", h.PatientCategoriesList)
+	r.GET("/patient-category/:id", h.PatientCategoryDetail)
+	r.POST("/glomerular-calculation/:id/delete", h.DeleteGlomerularCalculation)
+	r.POST("/patient-category/:id/add", h.CreateDraftGlomerularCalculationAndAddCategory)
+	r.GET("/glomerular-calculation/:id", h.GlomerularCalculationDetail)
 	r.GET("/images/:key", h.GetImage)
 
-	r.Run() // :8080
+	r.NoRoute(h.Handle404)
+
+	r.Run()
 	log.Println("Server down")
 }

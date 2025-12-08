@@ -1,77 +1,89 @@
-body {
-    background: #fff;
+
+* {
     margin: 0;
-    font-family: 'Arial', sans-serif;
-}
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #fff;
-    padding: 16px 32px 8px 32px;
-    font-size: 26px;
-    font-weight: bold;
+    padding: 0;
     box-sizing: border-box;
 }
-.home-btn {
-    color: #000;
-    text-decoration: none;
-    font-size: 22px;
+
+body {
+    background: #EEF4FB;
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    color: #28415E;
 }
-.ckd-btn {
+
+.header {
     display: flex;
+    justify-content: flex-start;
     align-items: center;
-    font-size: 22px;
-    color: #0076fe;
+    background: #FFFFFF;
+    padding: 20px 40px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.site-title {
+    color: #004A99;
     text-decoration: none;
-    font-weight: bold;
-    gap: 8px;
+    font-size: 36px;
+    font-weight: 700;
+    font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
-.ckd-icon {
-    width: 32px;
-    height: 32px;
+
+.site-title:hover {
+    opacity: 0.8;
 }
+
 .content {
-    background: #e6e6e6;
-    min-height: calc(100vh - 60px);
-    padding: 36px 32px 40px 32px;
+    background: #EEF4FB;
+    min-height: calc(100vh - 80px);
+    padding: 40px;
 }
+
 .patient-detail-card {
     display: flex;
     align-items: flex-start;
-    background: #fff;
+    background: #FFFFFF;
     margin: 0 auto;
-    padding: 36px;
-    border-radius: 26px;
+    padding: 40px;
+    border-radius: 12px;
     max-width: 1000px;
-    gap: 36px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    gap: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
+
 .avatar-big {
-    width: 250px;
-    height: 250px;
-    border-radius: 20px;
-    background: #fff;
+    width: 300px;
+    height: 300px;
+    border-radius: 12px;
+    background: #FFFFFF;
     display: block;
     flex-shrink: 0;
     object-fit: cover;
 }
+
 .info {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 20px;
     margin-top: 8px;
+    flex: 1;
 }
+
 .fio {
-    font-size: 32px;
-    font-weight: bold;
-    margin-bottom: 18px;
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #28415E;
+    font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
 }
+
 .info-list {
-    font-size: 22px;
-    color: #111;
+    font-size: 15px;
+    color: #28415E;
     line-height: 1.8;
 }
+
 .info-list div {
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }

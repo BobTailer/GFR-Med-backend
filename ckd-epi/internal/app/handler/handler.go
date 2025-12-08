@@ -16,32 +16,32 @@ import (
 )
 
 type Handler struct {
-	Repo       *repository.Repository
+	Repo        *repository.Repository
 	MinIOClient *storage.MinIOClient
 }
 
 func NewHandler(r *repository.Repository, minioClient *storage.MinIOClient) *Handler {
 	return &Handler{
-		Repo:       r,
+		Repo:        r,
 		MinIOClient: minioClient,
 	}
 }
 
 func (h *Handler) PatientCategoriesList(ctx *gin.Context) {
-	query := ctx.Query("search")
-	
+	query := ctx.Query("category_name")
+
 	user, err := h.Repo.GetDefaultUser()
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to get user")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
+
 	categories, err := h.Repo.GetPatientCategories(query)
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to get categories")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
+
 	type CategoryWithImageURL struct {
 		ID          uint
 		Name        string
@@ -51,7 +51,7 @@ func (h *Handler) PatientCategoriesList(ctx *gin.Context) {
 		ImageKey    *string
 		ImageURL    string
 	}
-	
+
 	categoriesWithURLs := make([]CategoryWithImageURL, len(categories))
 	for i, cat := range categories {
 		var imageURL string
@@ -68,27 +68,27 @@ func (h *Handler) PatientCategoriesList(ctx *gin.Context) {
 			ImageURL:    imageURL,
 		}
 	}
-	
-	var hasDraftOrder bool
-	var draftOrderID uint
+
+	var hasDraftCalculation bool
+	var draftCalculationID uint
 	var categoriesCount int
-	draftOrder, err := h.Repo.GetDraftGFROrder(user.ID)
-	if err == nil && draftOrder != nil {
-		hasDraftOrder = true
-		draftOrderID = draftOrder.ID
-		
-		fullOrder, err := h.Repo.GetGFROrderByID(draftOrder.ID)
-		if err == nil && fullOrder != nil {
-			categoriesCount = len(fullOrder.OrderCategories)
+	draftCalculation, err := h.Repo.GetDraftGlomerularCalculation(user.ID)
+	if err == nil && draftCalculation != nil {
+		hasDraftCalculation = true
+		draftCalculationID = draftCalculation.ID
+
+		fullCalculation, err := h.Repo.GetGlomerularCalculationByID(draftCalculation.ID)
+		if err == nil && fullCalculation != nil {
+			categoriesCount = len(fullCalculation.CalculationCategories)
 		}
 	}
-	
+
 	ctx.HTML(http.StatusOK, "services.html", gin.H{
-		"categories":      categoriesWithURLs,
-		"search":          query,
-		"hasDraftOrder":   hasDraftOrder,
-		"draftOrderID":    draftOrderID,
-		"categoriesCount": categoriesCount,
+		"categories":          categoriesWithURLs,
+		"category_name":       query,
+		"hasDraftCalculation": hasDraftCalculation,
+		"draftCalculationID":  draftCalculationID,
+		"categoriesCount":     categoriesCount,
 	})
 }
 
@@ -96,176 +96,209 @@ func (h *Handler) PatientCategoryDetail(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Invalid category ID")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
+
 	category, err := h.Repo.GetPatientCategoryByID(uint(id))
 	if err != nil {
-		ctx.String(http.StatusNotFound, "Category not found")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
+
 	user, err := h.Repo.GetDefaultUser()
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to get user")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	var hasDraftOrder bool
-	var draftOrderID uint
+
+	var hasDraftCalculation bool
+	var draftCalculationID uint
 	var categoriesCount int
-	draftOrder, err := h.Repo.GetDraftGFROrder(user.ID)
-	if err == nil && draftOrder != nil {
-		hasDraftOrder = true
-		draftOrderID = draftOrder.ID
-		
-		fullOrder, err := h.Repo.GetGFROrderByID(draftOrder.ID)
-		if err == nil && fullOrder != nil {
-			categoriesCount = len(fullOrder.OrderCategories)
+	draftCalculation, err := h.Repo.GetDraftGlomerularCalculation(user.ID)
+	if err == nil && draftCalculation != nil {
+		hasDraftCalculation = true
+		draftCalculationID = draftCalculation.ID
+
+		fullCalculation, err := h.Repo.GetGlomerularCalculationByID(draftCalculation.ID)
+		if err == nil && fullCalculation != nil {
+			categoriesCount = len(fullCalculation.CalculationCategories)
 		}
 	}
-	
+
 	var imageURL string
 	if category.ImageKey != nil {
 		imageURL = h.MinIOClient.GetPublicURL(*category.ImageKey)
 	}
-	
+
 	ctx.HTML(http.StatusOK, "patient.html", gin.H{
-		"category":        category,
-		"imageURL":        imageURL,
-		"hasDraftOrder":   hasDraftOrder,
-		"draftOrderID":    draftOrderID,
-		"categoriesCount": categoriesCount,
+		"category":            category,
+		"imageURL":            imageURL,
+		"hasDraftCalculation": hasDraftCalculation,
+		"draftCalculationID":  draftCalculationID,
+		"categoriesCount":     categoriesCount,
 	})
 }
 
-func (h *Handler) GFROrderDetail(ctx *gin.Context) {
+func (h *Handler) GlomerularCalculationDetail(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Invalid order ID")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	gfrOrder, err := h.Repo.GetGFROrderByID(uint(id))
+
+	calculation, err := h.Repo.GetGlomerularCalculationByID(uint(id))
 	if err != nil {
-		ctx.String(http.StatusNotFound, "Order not found")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	if gfrOrder.Status == models.OrderStatusDeleted {
-		ctx.String(http.StatusNotFound, "Order not found")
+
+	if calculation.Status == models.CalculationStatusDeleted {
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
 
 	user, err := h.Repo.GetDefaultUser()
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to get user")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	var hasDraftOrder bool
-	var draftOrderID uint
+
+	var hasDraftCalculation bool
+	var draftCalculationID uint
 	var categoriesCount int
-	draftOrder, err := h.Repo.GetDraftGFROrder(user.ID)
-	if err == nil && draftOrder != nil {
-		hasDraftOrder = true
-		draftOrderID = draftOrder.ID
-		
-		fullOrder, err := h.Repo.GetGFROrderByID(draftOrder.ID)
-		if err == nil && fullOrder != nil {
-			categoriesCount = len(fullOrder.OrderCategories)
+	draftCalculation, err := h.Repo.GetDraftGlomerularCalculation(user.ID)
+	if err == nil && draftCalculation != nil {
+		hasDraftCalculation = true
+		draftCalculationID = draftCalculation.ID
+
+		fullCalculation, err := h.Repo.GetGlomerularCalculationByID(draftCalculation.ID)
+		if err == nil && fullCalculation != nil {
+			categoriesCount = len(fullCalculation.CalculationCategories)
 		}
 	}
 
-	type CategoryWithImageURL struct {
-		ID          uint
-		Name        string
-		Description string
-		Gender      string
-		Age         int
-		ImageKey    *string
-		ImageURL    string
+	type CategoryWithCalculationData struct {
+		ID              uint
+		Name            string
+		Description     string
+		Gender          string
+		Age             int
+		ImageKey        *string
+		ImageURL        string
+		CreatinineLevel *float64
+		CalculatedGFR   *float64
 	}
-	
-	categoriesWithURLs := make([]CategoryWithImageURL, len(gfrOrder.Categories))
-	for i, cat := range gfrOrder.Categories {
+
+	calculationCategoryMap := make(map[uint]*models.GlomerularCalculationCategory)
+	for i := range calculation.CalculationCategories {
+		cc := &calculation.CalculationCategories[i]
+		calculationCategoryMap[cc.CategoryID] = cc
+	}
+
+	categoriesWithData := make([]CategoryWithCalculationData, 0, len(calculation.Categories))
+	for _, cat := range calculation.Categories {
 		var imageURL string
 		if cat.ImageKey != nil {
 			imageURL = h.MinIOClient.GetPublicURL(*cat.ImageKey)
 		}
-		categoriesWithURLs[i] = CategoryWithImageURL{
-			ID:          cat.ID,
-			Name:        cat.Name,
-			Description: cat.Description,
-			Gender:      cat.Gender,
-			Age:         cat.Age,
-			ImageKey:    cat.ImageKey,
-			ImageURL:    imageURL,
+
+		calcCat := calculationCategoryMap[cat.ID]
+		var creatinineLevel *float64
+		var calculatedGFR *float64
+		if calcCat != nil {
+			creatinineLevel = calcCat.CreatinineLevel
+			calculatedGFR = calcCat.CalculatedGFR
 		}
+
+		categoriesWithData = append(categoriesWithData, CategoryWithCalculationData{
+			ID:              cat.ID,
+			Name:            cat.Name,
+			Description:     cat.Description,
+			Gender:          cat.Gender,
+			Age:             cat.Age,
+			ImageKey:        cat.ImageKey,
+			ImageURL:        imageURL,
+			CreatinineLevel: creatinineLevel,
+			CalculatedGFR:   calculatedGFR,
+		})
+	}
+
+	var averageAge float64
+	if calculation.AverageAge != nil {
+		averageAge = *calculation.AverageAge
+	} else if len(calculation.Categories) > 0 {
+		var totalAge int
+		for _, cat := range calculation.Categories {
+			totalAge += cat.Age
+		}
+		averageAge = float64(totalAge) / float64(len(calculation.Categories))
+
+		avgAgePtr := &averageAge
+		h.Repo.UpdateGlomerularCalculationAverageAge(calculation.ID, avgAgePtr)
 	}
 
 	ctx.HTML(http.StatusOK, "order.html", gin.H{
-		"order":           gfrOrder,
-		"categories":      categoriesWithURLs,
-		"orderCategories": gfrOrder.OrderCategories,
-		"hasDraftOrder":   hasDraftOrder,
-		"draftOrderID":    draftOrderID,
-		"categoriesCount": categoriesCount,
+		"calculation":         calculation,
+		"categories":          categoriesWithData,
+		"averageAge":          averageAge,
+		"hasDraftCalculation": hasDraftCalculation,
+		"draftCalculationID":  draftCalculationID,
+		"categoriesCount":     categoriesCount,
 	})
 }
 
-func (h *Handler) CreateDraftGFROrderAndAddCategory(ctx *gin.Context) {
+func (h *Handler) CreateDraftGlomerularCalculationAndAddCategory(ctx *gin.Context) {
 	categoryIDStr := ctx.Param("id")
 	categoryID, err := strconv.ParseUint(categoryIDStr, 10, 32)
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Invalid category ID")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
+
 	user, err := h.Repo.GetDefaultUser()
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to get user")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	gfrOrder, err := h.Repo.GetOrCreateDraftGFROrder(user.ID)
+
+	calculation, err := h.Repo.GetOrCreateDraftGlomerularCalculation(user.ID)
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to create order")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	err = h.Repo.AddCategoryToGFROrder(gfrOrder.ID, uint(categoryID))
+
+	err = h.Repo.AddCategoryToGlomerularCalculation(calculation.ID, uint(categoryID))
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to add category to order")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	ctx.Redirect(http.StatusFound, fmt.Sprintf("/order/%d", gfrOrder.ID))
+
+	ctx.Redirect(http.StatusFound, fmt.Sprintf("/glomerular-calculation/%d", calculation.ID))
 }
 
-func (h *Handler) DeleteGFROrder(ctx *gin.Context) {
+func (h *Handler) DeleteGlomerularCalculation(ctx *gin.Context) {
 	idStr := ctx.Param("id")
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
-		ctx.String(http.StatusBadRequest, "Invalid order ID")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	err = h.Repo.DeleteGFROrder(uint(id))
+
+	err = h.Repo.DeleteGlomerularCalculation(uint(id))
 	if err != nil {
-		ctx.String(http.StatusInternalServerError, "Failed to delete order")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
-	
-	ctx.Redirect(http.StatusFound, "/categories")
+
+	ctx.Redirect(http.StatusFound, "/patient-categories")
 }
 
 func (h *Handler) GetImage(ctx *gin.Context) {
 	imageKey := ctx.Param("key")
 	if imageKey == "" {
-		ctx.String(http.StatusBadRequest, "Image key is required")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
 
@@ -274,13 +307,13 @@ func (h *Handler) GetImage(ctx *gin.Context) {
 
 	objInfo, err := h.MinIOClient.StatObject(ctxReq, imageKey)
 	if err != nil {
-		ctx.String(http.StatusNotFound, "Image not found")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
 
 	obj, err := h.MinIOClient.GetObject(ctxReq, imageKey)
 	if err != nil {
-		ctx.String(http.StatusNotFound, "Image not found")
+		ctx.Redirect(http.StatusFound, "/patient-categories")
 		return
 	}
 	defer obj.Close()
@@ -314,4 +347,8 @@ func (h *Handler) GetImage(ctx *gin.Context) {
 		log.Printf("Error copying image to response: %v", err)
 		return
 	}
+}
+
+func (h *Handler) Handle404(ctx *gin.Context) {
+	ctx.Redirect(http.StatusFound, "/patient-categories")
 }

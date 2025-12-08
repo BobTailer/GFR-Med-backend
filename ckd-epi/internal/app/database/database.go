@@ -50,8 +50,8 @@ func AutoMigrate() error {
 	err := DB.AutoMigrate(
 		&models.PatientCategory{},
 		&models.User{},
-		&models.GFROrder{},
-		&models.GFROrderCategory{},
+		&models.GlomerularCalculation{},
+		&models.GlomerularCalculationCategory{},
 	)
 
 	if err != nil {
@@ -70,6 +70,12 @@ func AutoMigrate() error {
 		log.Printf("Warning: could not drop avatar column: %v", err)
 	}
 
+	if DB.Migrator().HasTable("gfr_orders") {
+		if err := DB.Exec("ALTER TABLE gfr_orders RENAME TO glomerular_calculations").Error; err != nil {
+			log.Printf("Warning: could not rename gfr_orders table: %v", err)
+		}
+	}
+
 	if DB.Migrator().HasTable("gfr_order_categories") {
 		var hasServiceID bool
 		DB.Raw("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'gfr_order_categories' AND column_name = 'service_id')").Scan(&hasServiceID)
@@ -85,20 +91,56 @@ func AutoMigrate() error {
 				log.Printf("Warning: could not rename gfr_order_id to order_id: %v", err)
 			}
 		}
+		var hasOrderID bool
+		DB.Raw("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'gfr_order_categories' AND column_name = 'order_id')").Scan(&hasOrderID)
+		if hasOrderID {
+			if err := DB.Exec("ALTER TABLE gfr_order_categories RENAME COLUMN order_id TO calculation_id").Error; err != nil {
+				log.Printf("Warning: could not rename order_id to calculation_id: %v", err)
+			}
+		}
+		if err := DB.Exec("ALTER TABLE gfr_order_categories RENAME TO glomerular_calculation_categories").Error; err != nil {
+			log.Printf("Warning: could not rename gfr_order_categories table: %v", err)
+		}
 	}
 
-	if !DB.Migrator().HasIndex(&models.GFROrderCategory{}, "order_id") {
+	var hasDoctorName bool
+	var hasAverageAge bool
+	if DB.Migrator().HasTable("glomerular_calculations") {
+		DB.Raw("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'glomerular_calculations' AND column_name = 'doctor_name')").Scan(&hasDoctorName)
+		if !hasDoctorName {
+			if err := DB.Exec("ALTER TABLE glomerular_calculations ADD COLUMN IF NOT EXISTS doctor_name VARCHAR(255)").Error; err != nil {
+				log.Printf("Warning: could not add doctor_name column: %v", err)
+			}
+		}
+		DB.Raw("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'glomerular_calculations' AND column_name = 'average_age')").Scan(&hasAverageAge)
+		if !hasAverageAge {
+			if err := DB.Exec("ALTER TABLE glomerular_calculations ADD COLUMN IF NOT EXISTS average_age DECIMAL(10,2)").Error; err != nil {
+				log.Printf("Warning: could not add average_age column: %v", err)
+			}
+		}
+	}
+	var hasCalculatedGFR bool
+	if DB.Migrator().HasTable("glomerular_calculation_categories") {
+		DB.Raw("SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'glomerular_calculation_categories' AND column_name = 'calculated_gfr')").Scan(&hasCalculatedGFR)
+		if !hasCalculatedGFR {
+			if err := DB.Exec("ALTER TABLE glomerular_calculation_categories ADD COLUMN IF NOT EXISTS calculated_gfr DECIMAL(10,2)").Error; err != nil {
+				log.Printf("Warning: could not add calculated_gfr column: %v", err)
+			}
+		}
+	}
+
+	if !DB.Migrator().HasIndex(&models.GlomerularCalculationCategory{}, "calculation_id") {
 		if err := DB.Exec(`
-			CREATE UNIQUE INDEX IF NOT EXISTS idx_gfr_order_category_unique 
-			ON gfr_order_categories(order_id, category_id);
+			CREATE UNIQUE INDEX IF NOT EXISTS idx_glomerular_calculation_category_unique 
+			ON glomerular_calculation_categories(calculation_id, category_id);
 		`).Error; err != nil {
 			log.Printf("Warning: could not create unique index: %v", err)
 		}
 	}
 
 	if err := DB.Exec(`
-		CREATE UNIQUE INDEX IF NOT EXISTS idx_gfr_order_draft_unique 
-		ON gfr_orders(creator_id) 
+		CREATE UNIQUE INDEX IF NOT EXISTS idx_glomerular_calculation_draft_unique 
+		ON glomerular_calculations(creator_id) 
 		WHERE status = 'черновик' AND deleted_at IS NULL;
 	`).Error; err != nil {
 		log.Printf("Warning: could not create draft unique index: %v", err)
@@ -117,7 +159,7 @@ func SeedData(minioClient *storage.MinIOClient) error {
 
 	user := models.User{
 		Username:    "admin",
-		Password:    "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy", // password: admin
+		Password:    "$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
 		IsModerator: true,
 	}
 	if err := DB.Create(&user).Error; err != nil {
@@ -133,12 +175,9 @@ func SeedData(minioClient *storage.MinIOClient) error {
 		age         int
 		avatarFile  string
 	}{
-		{"Мужчина, 20-30 лет", "Категория: мужской пол, возраст от 20 до 30 лет", "М", 25, "man_20_30.png"},
 		{"Мужчина, 30-40 лет", "Категория: мужской пол, возраст от 30 до 40 лет", "М", 35, "man_30_40.png"},
 		{"Мужчина, 40-50 лет", "Категория: мужской пол, возраст от 40 до 50 лет", "М", 45, "man_40_50.png"},
 		{"Мужчина, 50-60 лет", "Категория: мужской пол, возраст от 50 до 60 лет", "М", 55, "man_50_60.png"},
-		{"Женщина, 20-30 лет", "Категория: женский пол, возраст от 20 до 30 лет", "Ж", 25, "woman_20_30.png"},
-		{"Женщина, 30-40 лет", "Категория: женский пол, возраст от 30 до 40 лет", "Ж", 35, "woman_30_40.png"},
 		{"Женщина, 40-50 лет", "Категория: женский пол, возраст от 40 до 50 лет", "Ж", 45, "woman_40_50.png"},
 		{"Женщина, 50-60 лет", "Категория: женский пол, возраст от 50 до 60 лет", "Ж", 55, "woman_50_60.png"},
 	}
@@ -192,7 +231,6 @@ func stringPtr(s string) *string {
 	return &s
 }
 
-// getEnv получает переменную окружения или возвращает значение по умолчанию
 func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
