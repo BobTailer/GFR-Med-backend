@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+    <link rel="stylesheet" href="/static/styles/services_style.css">
+</head>
+<body>
+    <div class="header">
+        <a class="site-title" href="/patient-categories">СКФ-Мед</a>
+    </div>
+    <div class="content">
+        <div class="search-bar-container">
+            <form method="get" action="/patient-categories" class="search-block">
+                <input type="text" class="search-input" name="category_name" placeholder="Поиск..." value="{{ .category_name }}">
+                <button type="submit" class="search-btn">
+                    <img src="/static/img/search.png" alt="Поиск">
+                </button>
+            </form>
+            {{ if .hasDraftCalculation }}
+                {{ if gt .categoriesCount 0 }}
+                <a class="cart-btn" href="/glomerular-calculation/{{ .draftCalculationID }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#004A99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cart-icon">
+                        <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                        <line x1="8" y1="6" x2="16" y2="6"></line>
+                        <line x1="8" y1="10" x2="16" y2="10"></line>
+                        <line x1="8" y1="14" x2="12" y2="14"></line>
+                        <line x1="8" y1="18" x2="16" y2="18"></line>
+                    </svg>
+                    <span class="cart-badge">{{ .categoriesCount }}</span>
+                </a>
+                {{ else }}
+                <span class="cart-btn empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#004A99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cart-icon">
+                        <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                        <line x1="8" y1="6" x2="16" y2="6"></line>
+                        <line x1="8" y1="10" x2="16" y2="10"></line>
+                        <line x1="8" y1="14" x2="12" y2="14"></line>
+                        <line x1="8" y1="18" x2="16" y2="18"></line>
+                    </svg>
+                </span>
+                {{ end }}
+            {{ else }}
+            <span class="cart-btn disabled">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#004A99" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="cart-icon">
+                    <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                    <line x1="8" y1="6" x2="16" y2="6"></line>
+                    <line x1="8" y1="10" x2="16" y2="10"></line>
+                    <line x1="8" y1="14" x2="12" y2="14"></line>
+                    <line x1="8" y1="18" x2="16" y2="18"></line>
+                </svg>
+            </span>
+            {{ end }}
+        </div>
+        <div class="patients-list">
+            {{ range .categories }}
+            <div class="patient-card">
+                <a href="/patient-category/{{ .ID }}" class="avatar-link">
+                    {{ if .ImageURL }}
+                    <img src="{{ .ImageURL }}" alt="Аватар" class="avatar">
+                    {{ else }}
+                    <img src="/static/img/default.png" alt="Аватар" class="avatar">
+                    {{ end }}
+                </a>
+                <div class="fio">{{ .Name }}</div>
+                <div class="card-actions">
+                    <form method="post" action="/patient-category/{{ .ID }}/add" class="card-form-inline">
+                        <button type="submit" class="choose-btn">Добавить в расчёт</button>
+                    </form>
+                </div>
+            </div>
+            {{ end }}
+        </div>
+    </div>
+</body>
+</html>

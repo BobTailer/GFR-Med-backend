@@ -1,0 +1,89 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #EEF4FB;
+    margin: 0;
+    font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    font-size: 15px;
+    color: #28415E;
+}
+
+.header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background: #FFFFFF;
+    padding: 20px 40px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.site-title {
+    color: #004A99;
+    text-decoration: none;
+    font-size: 36px;
+    font-weight: 700;
+    font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.site-title:hover {
+    opacity: 0.8;
+}
+
+.content {
+    background: #EEF4FB;
+    min-height: calc(100vh - 80px);
+    padding: 40px;
+}
+
+.patient-detail-card {
+    display: flex;
+    align-items: flex-start;
+    background: #FFFFFF;
+    margin: 0 auto;
+    padding: 40px;
+    border-radius: 12px;
+    max-width: 1000px;
+    gap: 40px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.avatar-big {
+    width: 300px;
+    height: 300px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    display: block;
+    flex-shrink: 0;
+    object-fit: cover;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 8px;
+    flex: 1;
+}
+
+.fio {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #28415E;
+    font-family: 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+}
+
+.info-list {
+    font-size: 15px;
+    color: #28415E;
+    line-height: 1.8;
+}
+
+.info-list div {
+    margin-bottom: 12px;
+}
